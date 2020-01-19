@@ -297,6 +297,10 @@ Xades.prototype.toString = function() {
 	return XadesXml.stringify(this.obj)
 }
 
+Xades.prototype.valueOf = function() {
+	return this.obj
+}
+
 Xades.parse = function(xml) {
 	var obj = XadesXml.parse(xml)
 
