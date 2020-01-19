@@ -2,6 +2,7 @@ var _ = require("../lib/underscore")
 var Neodoc = require("neodoc")
 var MobileId = require("../lib/mobile_id")
 var MobileIdError = require("../lib/mobile_id").MobileIdError
+var Crypto = require("crypto")
 var co = require("co")
 var stringifyCertificate = require("./certificate_cli").stringify
 
@@ -12,12 +13,20 @@ Usage: hades mobile-id-certificate (-h | --help)
 Options:
     -h, --help             Display this help and exit.
     -f, --format=FMT       Format to print the certificate in. [default: text]
+    -t, --type=TYPE        Whether to get the sign or auth cert. [default: sign]
     --mobile-id-user=NAME  Username (relying party name) for Mobile Id.
     --mobile-id-password=UUID  Password (relying party UUID) for Mobile Id.
 
 Formats:
     text                  Print human-readable information.
     pem                   Print the certificate only in PEM.
+
+Certificate Types:
+    auth                  Authentication certificate returned after PIN1.
+    sign                  Signature certificate.
+
+Note that the getting the authentication certificate triggers authentication,
+which isn't something you can do without the person knowing.
 `.trimLeft()
 
 module.exports = _.compose(errorify, co.wrap(function*(argv) {
@@ -33,7 +42,31 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 		password:  args["--mobile-id-password"]
 	}) : MobileId.demo
 
-	var cert = yield mobileId.readCertificate(phoneNumber, personalId)
+	var cert
+	var type = args["--type"]
+
+	switch (type) {
+		case "auth":
+			var authableHash = Crypto.randomBytes(32)
+			console.warn("Confirmation code: " + serializeConfirmation(authableHash))
+
+			var sessionId = yield mobileId.authenticate(
+				phoneNumber,
+				personalId,
+				authableHash
+			)
+
+			var _signature
+			;[cert, _signature] = yield mobileId.waitForAuthentication(sessionId)
+			break
+
+		case "sign":
+			cert = yield mobileId.readCertificate(phoneNumber, personalId)
+			
+			break
+
+		default: throw new RangeError("Unsupported certiifcate type: " + type)
+	}
 
 	var fmt = args["--format"]
 	switch (fmt.toLowerCase()) {
@@ -51,4 +84,8 @@ function errorify(res) {
 		}
 		else throw err
 	})
+}
+
+function serializeConfirmation(signableHash) {
+	return ("000" + MobileId.confirmation(signableHash)).slice(-4)
 }
