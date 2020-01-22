@@ -49,8 +49,6 @@ describe("Timestamp", function() {
 })
 
 function respond(timestamp, req) {
-	var Fs = require("fs")
 	req.res.setHeader("Content-Type", "application/timestamp-reply")
-	Fs.writeFileSync("testts.res", TimestampResponseAsn.encode(timestamp))
 	req.res.end(TimestampResponseAsn.encode(timestamp))
 }
