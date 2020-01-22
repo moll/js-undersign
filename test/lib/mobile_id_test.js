@@ -235,10 +235,10 @@ describe("MobileId", function() {
 				}
 			}, req)
 
-			var [cert, signature] = yield res
-			cert.must.be.an.instanceof(Certificate)
-			cert.serialNumber.must.eql(CERTIFICATE.serialNumber)
-			signature.must.eql(Buffer.from("coffee"))
+			var certAndSignature = yield res
+			certAndSignature[0].must.be.an.instanceof(Certificate)
+			certAndSignature[0].serialNumber.must.eql(CERTIFICATE.serialNumber)
+			certAndSignature[1].must.eql(Buffer.from("coffee"))
 		})
 
 		it("must return null if still running", function*() {
