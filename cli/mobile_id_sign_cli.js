@@ -100,7 +100,7 @@ function errorify(res) {
 	return res.catch(function(err) {
 		if (err instanceof MobileIdError) {
 			process.exitCode = 3
-			console.error("Mobile-Id Error: " + err.message)
+			console.error("Mobile-Id Error: %s: %s", err.code, err.message)
 		}
 		else throw err
 	})

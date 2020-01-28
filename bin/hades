@@ -20,6 +20,7 @@ Commands:
     tsl                    Get the European Trust Service List.
     mobile-id-certificate  Get the certificate associated with a phone number.
     mobile-id-sign         Sign a file with Mobile-Id.
+    smart-id-certificate   Get the certificate associated with a person.
     validate               Validates the signature XML created by Undersign.
 
 For more help or to give feedback, please contact ${AUTHOR_EMAIL}.
@@ -49,7 +50,8 @@ var CLIS = {
 	tsl: "../cli/tsl_cli",
 	validate: "../cli/validate_cli",
 	"mobile-id-certificate": "../cli/mobile_id_certificate_cli",
-	"mobile-id-sign": "../cli/mobile_id_sign_cli"
+	"mobile-id-sign": "../cli/mobile_id_sign_cli",
+	"smart-id-certificate": "../cli/smart_id_certificate_cli"
 }
 
 if (CLIS[cmd] == null) {
