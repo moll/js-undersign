@@ -202,6 +202,17 @@ describe("SmartId", function() {
 			cert.smartId.must.equal(DOCUMENT_NUMBER)
 			cert.level.must.equal("QUALIFIED")
 		})
+
+		it("must query via document id given SmartIdCertificate", function*() {
+			var cert = new SmartIdCertificate(newCertificate())
+			cert.smartId = DOCUMENT_NUMBER
+			smartId.certificate(cert)
+
+			var req = yield wait(this.mitm, "request")
+			req.method.must.equal("POST")
+			req.headers.host.must.equal("example.com")
+			req.url.must.equal("/smartid/certificatechoice/document/" + cert.smartId)
+		})
 	})
 
 	describe(".prototype.authenticate", function() {
@@ -261,6 +272,21 @@ describe("SmartId", function() {
 			certAndSignature[0].smartId.must.equal(DOCUMENT_NUMBER)
 			certAndSignature[0].level.must.equal("QUALIFIED")
 			certAndSignature[1].must.eql(Buffer.from("coffee"))
+		})
+
+		it("must query via document id given SmartIdCertificate", function*() {
+			var cert = new SmartIdCertificate(newCertificate())
+			cert.smartId = DOCUMENT_NUMBER
+			var authableHash = Crypto.randomBytes(32)
+			smartId.authenticate(cert, authableHash)
+			
+			var req = yield wait(this.mitm, "request")
+			req.method.must.equal("POST")
+			req.headers.host.must.equal("example.com")
+			req.url.must.equal("/smartid/authentication/document/" + cert.smartId)
+
+			var body = yield parseJson(req)
+			body.hash.must.equal(authableHash.toString("base64"))
 		})
 	})
 
