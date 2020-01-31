@@ -290,6 +290,81 @@ describe("SmartId", function() {
 		})
 	})
 
+	describe(".prototype.sign", function() {
+		mustHandleErrors(smartId.sign.bind(
+			smartId,
+			"PNOEE-" + ID_NUMBER,
+			Crypto.randomBytes(32)
+		))
+
+		it("must resolve with a session that resolves with a signature",
+			function*() {
+			var signableHash = Crypto.randomBytes(32)
+			var session = smartId.sign("PNOEE-" + ID_NUMBER, signableHash)
+			
+			var req = yield wait(this.mitm, "request")
+			req.method.must.equal("POST")
+			req.headers.host.must.equal("example.com")
+			req.headers["content-type"].must.equal("application/json")
+			req.headers.accept.must.equal("application/json")
+			req.url.must.equal("/smartid/signature/etsi/PNOEE-" + ID_NUMBER)
+
+			var body = yield parseJson(req)
+			body.relyingPartyName.must.equal(PARTY_NAME)
+			body.relyingPartyUUID.must.equal(PARTY_UUID)
+			body.hash.must.equal(signableHash.toString("base64"))
+			body.hashType.must.equal("SHA256")
+
+			respond({sessionID: SESSION_ID}, req)
+
+			var certAndSignature = smartId.wait(yield session, 10)
+			req = yield wait(this.mitm, "request")
+			req.method.must.equal("GET")
+			req.headers.host.must.equal("example.com")
+			req.headers.accept.must.equal("application/json")
+			var url = Url.parse(req.url, true)
+			url.pathname.must.equal("/smartid/session/" + SESSION_ID)
+			url.query.timeoutMs.must.equal("10000")
+
+			respond({
+				state: "COMPLETE",
+				result: {endResult: "OK", documentNumber: DOCUMENT_NUMBER},
+
+				cert: {
+					value: CERTIFICATE.toString("base64"),
+					certificateLevel: "QUALIFIED"
+				},
+
+				signature: {
+					algorithm: "sha256WithRSAEncryption",
+					value: Buffer.from("coffee").toString("base64")
+				}
+			}, req)
+
+			certAndSignature = yield certAndSignature
+			certAndSignature[0].must.be.an.instanceof(SmartIdCertificate)
+			certAndSignature[0].serialNumber.must.eql(CERTIFICATE.serialNumber)
+			certAndSignature[0].smartId.must.equal(DOCUMENT_NUMBER)
+			certAndSignature[0].level.must.equal("QUALIFIED")
+			certAndSignature[1].must.eql(Buffer.from("coffee"))
+		})
+
+		it("must query via document id given SmartIdCertificate", function*() {
+			var cert = new SmartIdCertificate(newCertificate())
+			cert.smartId = DOCUMENT_NUMBER
+			var signableHash = Crypto.randomBytes(32)
+			smartId.sign(cert, signableHash)
+			
+			var req = yield wait(this.mitm, "request")
+			req.method.must.equal("POST")
+			req.headers.host.must.equal("example.com")
+			req.url.must.equal("/smartid/signature/document/" + cert.smartId)
+
+			var body = yield parseJson(req)
+			body.hash.must.equal(signableHash.toString("base64"))
+		})
+	})
+
 	describe(".prototype.wait", function() {
 		it("must reject with SmartIdError if session not found", function*() {
 			var session = smartId.certificate("PNOEE-" + ID_NUMBER)

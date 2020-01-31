@@ -3,7 +3,7 @@ Undersign.js
 [![NPM version][npm-badge]](https://www.npmjs.com/package/undersign)
 [![Build status][travis-badge]](https://travis-ci.org/moll/js-undersign)
 
-Undersign.js is a **command line utility** and **JavaScript library** for creating **eIDAS** compatible **XAdES digital signatures** and **ASiC-E containers** with the accompanying **[OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol) responses** ([RFC 2560][rfc2560]) and **timestamps** ([RFC 3161][rfc3161]). It's got built-in support for the Estonian Id-card, Mobile-Id services and their related [BDOC specification](https://www.sk.ee/repository/bdoc-spec21.pdf), but is otherwise useful for generic XAdES signatures. It uses the [Euroopean Trusted List](https://webgate.ec.europa.eu/tl-browser) XML format as the source for certificate authorities.
+Undersign.js is a **command line utility** and **JavaScript library** for creating **eIDAS** compatible **XAdES digital signatures** and **ASiC-E containers** with the accompanying **[OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol) responses** ([RFC 2560][rfc2560]) and **timestamps** ([RFC 3161][rfc3161]). It's got built-in support for the Estonian Id-card, Mobile-Id, Smart-Id services and their related [BDOC specification](https://www.sk.ee/repository/bdoc-spec21.pdf), but is otherwise useful for generic XAdES signatures. It uses the [Euroopean Trusted List](https://webgate.ec.europa.eu/tl-browser) XML format as the source for certificate authorities.
 
 Note that currently Undersign.js is in a **beta** and **request for comments** phase. Please give it a try and report back on its correctness and API design.
 
@@ -257,7 +257,9 @@ Commands:
     tsl                    Get the European Trust Service List.
     mobile-id-certificate  Get the certificate associated with a phone number.
     mobile-id-sign         Sign a file with Mobile-Id.
-		validate               Validates the signature XML created by Undersign.
+    smart-id-certificate   Get the certificate associated with a person.
+    smart-id-sign          Sign a file with Smart-Id.
+    validate               Validates the signature XML created by Undersign.
 
 For more help or to give feedback, please contact andri@dot.ee.
 ```

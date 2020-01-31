@@ -21,6 +21,7 @@ Commands:
     mobile-id-certificate  Get the certificate associated with a phone number.
     mobile-id-sign         Sign a file with Mobile-Id.
     smart-id-certificate   Get the certificate associated with a person.
+    smart-id-sign          Sign a file with Smart-Id.
     validate               Validates the signature XML created by Undersign.
 
 For more help or to give feedback, please contact ${AUTHOR_EMAIL}.
@@ -51,7 +52,8 @@ var CLIS = {
 	validate: "../cli/validate_cli",
 	"mobile-id-certificate": "../cli/mobile_id_certificate_cli",
 	"mobile-id-sign": "../cli/mobile_id_sign_cli",
-	"smart-id-certificate": "../cli/smart_id_certificate_cli"
+	"smart-id-certificate": "../cli/smart_id_certificate_cli",
+	"smart-id-sign": "../cli/smart_id_sign_cli"
 }
 
 if (CLIS[cmd] == null) {
@@ -68,7 +70,11 @@ Promise.resolve(res).catch(function(err) {
 
 	if (err instanceof FetchError) {
 		if (err.request) console.error("Request Body:", err.request.body)
-		if (err.response) console.error("Response Body:", err.response.body)
+
+		if (err.response) {
+			console.error("Response Headers:", err.response.headers)
+			console.error("Response Body:", err.response.body)
+		}
 	}
 
 	process.exitCode = 2
