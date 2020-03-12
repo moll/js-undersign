@@ -111,6 +111,19 @@ describe("Asic", function() {
 			zip.must.be.an.instanceof(Yauzl.ZipFile)
 		})
 	})
+
+	describe(".prototype.end", function() {
+		it("must permit calling Asic.prototype.end multiple times", function*() {
+			var asic = new Asic
+			asic.add("document.txt", "Hello, world!", "text/plain")
+			asic.end()
+			asic.end()
+
+			var zip = yield parseZip(yield asic.toBuffer())
+			var entries = yield parseZipEntries(zip)
+			Object.keys(entries).length.must.equal(3)
+		})
+	})
 })
 
 function parseZipEntries(zip) {
