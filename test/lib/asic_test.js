@@ -30,10 +30,33 @@ describe("Asic", function() {
 			var entry = entries["META-INF/manifest.xml"]
 			var manifest = ManifestXml.parse(yield readZipEntry(zip, entry))
 
-
 			var file = manifest.m$manifest["m$file-entry"]
 			file["m$media-type"].must.equal(ASICE_TYPE)
 			file["m$full-path"].must.equal("/")
+		})
+	})
+
+	describe(".prototype.add", function() {
+		it("must support non-ASCII characters", function*() {
+			var asic = new Asic
+			asic.add("Ööpääsuke 🐦.txt", "Hello, 🌍!", "text/plain")
+
+			var zip = yield parseZip(yield asic.toBuffer())
+			var entries = yield parseZipEntries(zip)
+			Object.keys(entries).length.must.equal(3)
+
+			var manifestEntry = entries["META-INF/manifest.xml"]
+			var manifest = ManifestXml.parse(yield readZipEntry(zip, manifestEntry))
+			var files = manifest.m$manifest["m$file-entry"]
+			files.length.must.equal(2)
+
+			files[0]["m$media-type"].must.equal(ASICE_TYPE)
+			files[0]["m$full-path"].must.equal("/")
+			files[1]["m$media-type"].must.equal("text/plain")
+			files[1]["m$full-path"].must.equal("Ööpääsuke 🐦.txt")
+
+			var document = yield readZipEntry(zip, entries["Ööpääsuke 🐦.txt"])
+			document.must.equal("Hello, 🌍!")
 		})
 	})
 
