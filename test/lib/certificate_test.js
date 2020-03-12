@@ -180,19 +180,37 @@ describe("Certificate", function() {
 	})
 
 	describe(".prototype.hasSigned", function() {
+		// https://github.com/openssl/openssl/issues/9187
+		it("must verify PEM with line length multiple of 253", function() {
+			var key = newRsaKeys()
+			
+			var cert = new Certificate(newCertificate({
+				publicKey: X509Asn.SubjectPublicKeyInfo.decode(key.publicKey),
+
+				extensions: [{
+					extnID: "authorityInformationAccess",
+					extnValue: [{
+						accessMethod: OCSP_URL_OID,
+						accessLocation: {
+							type: "uniformResourceIdentifier",
+							value: "http://example.com/" + new Array(318).join("x")
+						}
+					}]
+				}]
+			}))
+
+			var max = _.max(cert.toString("pem").split("\n").map((l) => l.length))
+			max.must.equal(253 * 4)
+
+			var signable = "Hello, world"
+			var signer = Crypto.createSign("sha256")
+			var signature = signer.update(signable).sign(key.privateKey)
+			cert.hasSigned(signable, signature).must.be.true()
+		})
+
 		describe("given an RSA certificate", function() {
 			beforeEach(function() {
-				this.rsa = GENERATE_KEYS
-					? Crypto.generateKeyPairSync("rsa", {
-						modulusLength: 2048,
-						privateKeyEncoding: {type: "pkcs8", format: "pem"},
-						publicKeyEncoding: {type: "spki", format: "der"}
-					})
-					: readKeyPairSync(
-						__dirname + "/../fixtures/rsa.key",
-						__dirname + "/../fixtures/rsa.pub"
-					)
-
+				this.rsa = newRsaKeys()
 				this.certificate = new Certificate(newCertificate({
 					publicKey: X509Asn.SubjectPublicKeyInfo.decode(this.rsa.publicKey)
 				}))
@@ -264,17 +282,7 @@ describe("Certificate", function() {
 	describe(".prototype.hasIssued", function() {
 		it("must return false if tbsCertificate.signature algorithm mismatch",
 			function() {
-			var rsa = GENERATE_KEYS
-				? Crypto.generateKeyPairSync("rsa", {
-					modulusLength: 2048,
-					privateKeyEncoding: {type: "pkcs8", format: "pem"},
-					publicKeyEncoding: {type: "spki", format: "der"}
-				})
-				: readKeyPairSync(
-					__dirname + "/../fixtures/rsa.key",
-					__dirname + "/../fixtures/rsa.pub"
-				)
-
+			var rsa = newRsaKeys()
 			var issuer = new Certificate(newCertificate({
 				publicKey: X509Asn.SubjectPublicKeyInfo.decode(rsa.publicKey)
 			}))
@@ -354,19 +362,53 @@ describe("Certificate", function() {
 			issuer.hasIssued(certificate).must.be.false()
 		})
 
+		// https://github.com/openssl/openssl/issues/9187
+		it("must verify PEM with line length multiple of 253", function() {
+			var key = newRsaKeys()
+			
+			var issuer = new Certificate(newCertificate({
+				publicKey: X509Asn.SubjectPublicKeyInfo.decode(key.publicKey),
+
+				extensions: [{
+					extnID: "authorityInformationAccess",
+					extnValue: [{
+						accessMethod: OCSP_URL_OID,
+						accessLocation: {
+							type: "uniformResourceIdentifier",
+							value: "http://example.com/" + new Array(318).join("x")
+						}
+					}]
+				}]
+			}))
+
+			var max = _.max(issuer.toString("pem").split("\n").map((l) => l.length))
+			max.must.equal(253 * 4)
+
+			var signatureAlgorithm = {
+				algorithm: X509Asn.SIGNATURE_OIDS["rsa-sha256"],
+				parameters: NO_PARAMS
+			}
+
+			var unsignedCertificate = newUnsignedCertificate({
+				signatureAlgorithm: signatureAlgorithm
+			})
+
+			var der = X509Asn.TBSCertificate.encode(unsignedCertificate)
+			var signer = Crypto.createSign("sha256")
+			var signature = signer.update(der).sign(key.privateKey)
+
+			var certificate = new Certificate(newCertificate({
+				certificate: unsignedCertificate,
+				signatureAlgorithm: signatureAlgorithm,
+				signature: {unused: 0, data: signature}
+			}))
+
+			issuer.hasIssued(certificate).must.be.true()
+		})
+
 		describe("given an RSA certificate", function() {
 			beforeEach(function() {
-				this.rsa = GENERATE_KEYS
-					? Crypto.generateKeyPairSync("rsa", {
-						modulusLength: 2048,
-						privateKeyEncoding: {type: "pkcs8", format: "pem"},
-						publicKeyEncoding: {type: "spki", format: "der"}
-					})
-					: readKeyPairSync(
-						__dirname + "/../fixtures/rsa.key",
-						__dirname + "/../fixtures/rsa.pub"
-					)
-
+				this.rsa = newRsaKeys()
 				this.issuer = new Certificate(newCertificate({
 					publicKey: X509Asn.SubjectPublicKeyInfo.decode(this.rsa.publicKey)
 				}))
@@ -543,6 +585,19 @@ function newUnsignedCertificate(opts) {
 
 		extensions: extensions
 	}
+}
+
+function newRsaKeys() {
+	return GENERATE_KEYS
+		? Crypto.generateKeyPairSync("rsa", {
+			modulusLength: 2048,
+			privateKeyEncoding: {type: "pkcs8", format: "pem"},
+			publicKeyEncoding: {type: "spki", format: "der"}
+		})
+		: readKeyPairSync(
+			__dirname + "/../fixtures/rsa.key",
+			__dirname + "/../fixtures/rsa.pub"
+		)
 }
 
 function serializeSubject(relativeNames) {
