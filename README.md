@@ -100,7 +100,7 @@ xades.setTimestamp(await hades.timestamp(xades))
 
 Legally, any timestamp server that returns responses signed by a certificate that's in the European Trusted List will suffice. See the section on [Timestamp Services](#timestamp-services) for a few examples.
 
-Finally, use `Hades.prototype.ocsp` to do the certificate validity request. As OCSP needs access to the certificate's issuer certificate, `Hades` will try to get the from the certificates you configured before. If it fails to do so, you'll see an error.
+Finally, use `Hades.prototype.ocsp` to do the certificate validity request. As OCSP needs access to the certificate's issuer certificate, `Hades` will try to get the certificate from the `hades.certificates` property you gave its constructor. If it fails to find the issuer, you'll see an error.
 
 ```javascript
 xades.setOcspResponse(hades.ocsp(certificate))
