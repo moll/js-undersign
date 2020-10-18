@@ -72,7 +72,7 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 		"Confirmation code: " + serializeConfirmation(xades.signableHash)
 	)
 
-	var signature = yield smartId.wait(
+	var [_cert, signature] = yield smartId.wait(
 		yield smartId.sign(cert, xades.signableHash)
 	)
 
