@@ -3,6 +3,7 @@ var Url = require("url")
 var Crypto = require("crypto")
 var MobileId = require("../../lib/mobile_id")
 var MobileIdError = require("../../lib/mobile_id").MobileIdError
+var MobileIdSession = require("../../lib/mobile_id").MobileIdSession
 var Certificate = require("../../lib/certificate")
 var newCertificate = require("../fixtures").newCertificate
 var wait = require("../../lib/promise").wait
@@ -98,14 +99,14 @@ describe("MobileId", function() {
 		})
 	})
 
-	function mustHandleErrors(request, waitSession) {
+	function mustHandleErrors(request) {
 		describe("as a Mobile-Id method", function() {
 			it("must resolve with null if session still running", function*() {
 				var session = request()
 				var req = yield wait(this.mitm, "request")
 				respond({sessionID: SESSION_ID}, req)
 
-				var res = waitSession(session)
+				var res = mobileId.wait(yield session)
 				req = yield wait(this.mitm, "request")
 				respond({state: "RUNNING"}, req)
 				yield res.must.then.be.null()
@@ -145,7 +146,7 @@ describe("MobileId", function() {
 				var req = yield wait(this.mitm, "request")
 				respond({sessionID: SESSION_ID}, req)
 
-				var res = waitSession(session)
+				var res = mobileId.wait(yield session)
 				req = yield wait(this.mitm, "request")
 				req.res.statusCode = 400
 				respond({error: "Invalid format for sessionId='foo'"}, req)
@@ -164,7 +165,7 @@ describe("MobileId", function() {
 				var req = yield wait(this.mitm, "request")
 				respond({sessionID: SESSION_ID}, req)
 
-				var res = waitSession(session)
+				var res = mobileId.wait(yield session)
 				req = yield wait(this.mitm, "request")
 				req.res.statusCode = 401
 				respond({error: "Failed to authorize user"}, req)
@@ -184,7 +185,7 @@ describe("MobileId", function() {
 					var req = yield wait(this.mitm, "request")
 					respond({sessionID: SESSION_ID}, req)
 
-					var res = waitSession(session)
+					var res = mobileId.wait(yield session)
 					req = yield wait(this.mitm, "request")
 					respond({state: "COMPLETE", result: code}, req)
 
@@ -205,7 +206,7 @@ describe("MobileId", function() {
 			PHONE_NUMBER,
 			ID_NUMBER,
 			Crypto.randomBytes(32)
-		), mobileId.waitForAuthentication.bind(mobileId))
+		))
 
 		it("must resolve with a session that resolves with an authentication",
 			function*() {
@@ -234,7 +235,7 @@ describe("MobileId", function() {
 
 			respond({sessionID: SESSION_ID}, req)
 
-			var res = mobileId.waitForAuthentication(yield session, 10)
+			var res = mobileId.wait(yield session, 10)
 
 			req = yield wait(this.mitm, "request")
 			req.method.must.equal("GET")
@@ -269,7 +270,7 @@ describe("MobileId", function() {
 			PHONE_NUMBER,
 			ID_NUMBER,
 			Crypto.randomBytes(32)
-		), mobileId.waitForSignature.bind(mobileId))
+		))
 
 		it("must resolve with a session that resolves with a signature",
 			function*() {
@@ -294,7 +295,7 @@ describe("MobileId", function() {
 
 			respond({sessionID: SESSION_ID}, req)
 
-			var signature = mobileId.waitForSignature(yield session, 10)
+			var signature = mobileId.wait(yield session, 10)
 
 			req = yield wait(this.mitm, "request")
 			req.method.must.equal("GET")
@@ -324,6 +325,28 @@ describe("MobileId", function() {
 				"78225701eab0c124a4909e28a7e3323f48c9e0de828f690763bcc57ac06de0e1",
 				"hex"
 			)).must.equal(3937)
+		})
+	})
+
+	describe("MobileIdSession", function() {
+		describe(".prototype.toJSON", function() {
+			;["auth", "sign"].forEach(function(type) {
+				it("must serialize a " + type + " session", function() {
+					new MobileIdSession(type, SESSION_ID).toJSON().must.eql({
+						type: type,
+						id: SESSION_ID
+					})
+				})
+			})
+		})
+
+		describe(".parse", function() {
+			;["auth", "sign"].forEach(function(type) {
+				it("must parse a " + type + " session back", function() {
+					var session = new MobileIdSession(type, SESSION_ID)
+					MobileIdSession.parse(session.toJSON()).must.eql(session)
+				})
+			})
 		})
 	})
 

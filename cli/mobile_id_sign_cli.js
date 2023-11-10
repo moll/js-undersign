@@ -75,13 +75,13 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 		"Confirmation code: " + serializeConfirmation(xades.signableHash)
 	)
 
-	var sessionId = yield mobileId.sign(
+	var session = yield mobileId.sign(
 		phoneNumber,
 		personalId,
 		xades.signableHash
 	)
 
-	var signature = yield mobileId.waitForSignature(sessionId)
+	var signature = yield mobileId.wait(session)
 	xades.setSignature(signature)
 
 	if (args["--timestamp"]) xades.setTimestamp(yield Timestamp.request(

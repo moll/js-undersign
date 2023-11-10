@@ -53,14 +53,14 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 			var authableHash = Crypto.randomBytes(32)
 			console.warn("Confirmation code: " + serializeConfirmation(authableHash))
 
-			var sessionId = yield mobileId.authenticate(
+			var session = yield mobileId.authenticate(
 				phoneNumber,
 				personalId,
 				authableHash
 			)
 
 			var _signature
-			;[cert, _signature] = yield mobileId.waitForAuthentication(sessionId)
+			;[cert, _signature] = yield mobileId.wait(session)
 			break
 
 		case "sign":

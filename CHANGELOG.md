@@ -6,5 +6,9 @@
 
   To serialize a session to a JavaScript object (for storing in the database, for example) call `SmartIdSession.serialize` or `SmartIdSession.prototype.toJSON` on an instance. To parse the returned object back to an instance, call `SmartIdSession.parse`.
 
+- Redesigns the Mobile-ID session use to mirror the `SmartId` API. That is, both `MobileId.prototype.authenticate` and `MobileId.prototype.sign` now return a `MobileIdSession` object you can then pass to `MobileId.prototype.wait`.
+
+  Akin to `SmartIdSession`, you can use `MobileIdSession.serialize` and `MobileIdSession.parse` to save the session somewhere.
+
 ## 0.1.337 (Nov 10, 2023)
 - Sans three-headed dogs.
