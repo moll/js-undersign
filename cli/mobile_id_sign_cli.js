@@ -25,6 +25,7 @@ Options:
   	--tsl=FILE                 Use given Trust Service List.
     --issuer=PATH              Explicit issuer certificate if TSL unavailable.
     --ocsp-url=URL             URL for the OCSP server.
+    --mobile-id-url=URL        Custom URL for Mobile-Id API.
   	--mobile-id-user=NAME      Username (relying party name) for Mobile Id.
   	--mobile-id-password=UUID  Password (relying party UUID) for Mobile Id.
   	--timemark                 Get the Estonian BDOC's timemark with OCSP.
@@ -39,10 +40,12 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 	var path = args["<file>"]
 	if (path == null) return void process.stdout.write(USAGE_TEXT)
 
-	var mobileId = args["--mobile-id-user"] ? new MobileId({
-		user: args["--mobile-id-user"],
-		password:  args["--mobile-id-password"]
-	}) : MobileId.demo
+	var mobileId = args["--mobile-id-user"] || args["--mobile-id-url"]
+		? new MobileId(args["--mobile-id-url"], {
+			user: args["--mobile-id-user"],
+			password:  args["--mobile-id-password"]
+		})
+		: MobileId.demo
 
 	var phoneNumber = args["--phone"]
 	var personalId = args["--id"]
