@@ -1,7 +1,6 @@
 {
 	"name": "undersign",
-	"version": "0.0.0",
-	"private": true,
+	"version": "0.1.337",
 	"description": "Create eIDAS compatible XAdES digital signatures with certificate OCSP responses and timestamps. Works with the Estonian Id-card and Mobile-Id to create BDOCs, but isn't limited to Estonia.",
 
 	"keywords": [
