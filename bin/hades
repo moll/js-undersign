@@ -57,7 +57,7 @@ var CLIS = {
 }
 
 if (CLIS[cmd] == null) {
-	console.warn(`xades: No such command: ${cmd}`)
+	console.warn(`hades: No such command: ${cmd}`)
 	process.exitCode = 1
 	return
 }
