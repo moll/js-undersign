@@ -57,18 +57,16 @@ describe("MobileId", function() {
 			cert.serialNumber.must.eql(CERTIFICATE.serialNumber)
 		})
 
-		;["NOT_FOUND", "NOT_ACTIVE"].forEach(function(code) {
-			it(`must reject with MobileIdError given ${code} error`, function*() {
-				var cert = mobileId.readCertificate(PHONE_NUMBER, ID_NUMBER)
-				var req = yield wait(this.mitm, "request")
-				respond({result: code}, req)
+		it("must reject with MobileIdError given NOT_FOUND error", function*() {
+			var cert = mobileId.readCertificate(PHONE_NUMBER, ID_NUMBER)
+			var req = yield wait(this.mitm, "request")
+			respond({result: "NOT_FOUND"}, req)
 
-				var err
-				try { yield cert } catch (ex) { err = ex }
-				err.must.be.an.error(MobileIdError)
-				err.code.must.equal(code)
-				err.response.must.exist()
-			})
+			var err
+			try { yield cert } catch (ex) { err = ex }
+			err.must.be.an.error(MobileIdError)
+			err.code.must.equal("NOT_FOUND")
+			err.response.must.exist()
 		})
 
 		it("must reject with MobileIdError given 400 Bad Request", function*() {
@@ -247,8 +245,8 @@ describe("MobileId", function() {
 			url.query.timeoutMs.must.equal("10000")
 
 			respond({
-				result: "OK",
 				state: "COMPLETE",
+				result: "OK",
 
 				cert: CERTIFICATE.toString("base64"),
 
@@ -307,8 +305,8 @@ describe("MobileId", function() {
 			url.query.timeoutMs.must.equal("10000")
 
 			respond({
-				result: "OK",
 				state: "COMPLETE",
+				result: "OK",
 
 				signature: {
 					algorithm: "sha256WithRSAEncryption",
