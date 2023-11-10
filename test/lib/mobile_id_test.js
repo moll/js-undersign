@@ -297,7 +297,7 @@ describe("MobileId", function() {
 			respond({sessionID: SESSION_ID}, req)
 
 			var signature = mobileId.waitForSignature(yield session, 10)
-			
+
 			req = yield wait(this.mitm, "request")
 			req.method.must.equal("GET")
 			req.headers.host.must.equal("example.com")

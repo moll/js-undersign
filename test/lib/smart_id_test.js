@@ -48,7 +48,7 @@ describe("SmartId", function() {
 				var req = yield wait(this.mitm, "request")
 				req.res.statusCode = 400
 				respond({code: 400, message: "Bad Request"}, req)
-				
+
 				var err
 				try { yield session } catch (ex) { err = ex }
 				err.must.be.an.error(SmartIdError)
@@ -63,7 +63,7 @@ describe("SmartId", function() {
 				var req = yield wait(this.mitm, "request")
 				req.res.statusCode = 401
 				respond({code: 401, message: "Unauthorized"}, req)
-				
+
 				var err
 				try { yield session } catch (ex) { err = ex }
 				err.must.be.an.error(SmartIdError)
@@ -78,7 +78,7 @@ describe("SmartId", function() {
 				var req = yield wait(this.mitm, "request")
 				req.res.statusCode = 403
 				respond({code: 403, message: "Forbidden"}, req)
-				
+
 				var err
 				try { yield session } catch (ex) { err = ex }
 				err.must.be.an.error(SmartIdError)
@@ -93,7 +93,7 @@ describe("SmartId", function() {
 				var req = yield wait(this.mitm, "request")
 				req.res.statusCode = 404
 				respond({code: 404, message: "Not Found"}, req)
-				
+
 				var err
 				try { yield session } catch (ex) { err = ex }
 				err.must.be.an.error(SmartIdError)
@@ -109,7 +109,7 @@ describe("SmartId", function() {
 				var req = yield wait(this.mitm, "request")
 				req.res.statusCode = 471
 				respond({code: 471, message: "No suitable account found"}, req)
-				
+
 				var err
 				try { yield session } catch (ex) { err = ex }
 				err.must.be.an.error(SmartIdError)
@@ -125,7 +125,7 @@ describe("SmartId", function() {
 				var req = yield wait(this.mitm, "request")
 				req.res.statusCode = 580
 				respond({code: 580, message: "System is under maintenance"}, req)
-				
+
 				var err
 				try { yield session } catch (ex) { err = ex }
 				err.must.be.an.error(SmartIdError)
@@ -138,14 +138,14 @@ describe("SmartId", function() {
 				it(`must reject with SmartIdError given ${code} error to session`,
 					function*() {
 					var session = request()
-					
+
 					var req = yield wait(this.mitm, "request")
 					respond({sessionID: SESSION_ID}, req)
 
 					var res = smartId.wait(yield session)
 					req = yield wait(this.mitm, "request")
 					respond({state: "COMPLETE", result: {endResult: code}}, req)
-						
+
 					var err
 					try { yield res } catch (ex) { err = ex }
 					err.must.be.an.error(SmartIdError)
@@ -226,7 +226,7 @@ describe("SmartId", function() {
 			function*() {
 			var authableHash = Crypto.randomBytes(32)
 			var session = smartId.authenticate("PNOEE-" + ID_NUMBER, authableHash)
-			
+
 			var req = yield wait(this.mitm, "request")
 			req.method.must.equal("POST")
 			req.headers.host.must.equal("example.com")
@@ -279,7 +279,7 @@ describe("SmartId", function() {
 			cert.smartId = DOCUMENT_NUMBER
 			var authableHash = Crypto.randomBytes(32)
 			smartId.authenticate(cert, authableHash)
-			
+
 			var req = yield wait(this.mitm, "request")
 			req.method.must.equal("POST")
 			req.headers.host.must.equal("example.com")
@@ -301,7 +301,7 @@ describe("SmartId", function() {
 			function*() {
 			var signableHash = Crypto.randomBytes(32)
 			var session = smartId.sign("PNOEE-" + ID_NUMBER, signableHash)
-			
+
 			var req = yield wait(this.mitm, "request")
 			req.method.must.equal("POST")
 			req.headers.host.must.equal("example.com")
@@ -354,7 +354,7 @@ describe("SmartId", function() {
 			cert.smartId = DOCUMENT_NUMBER
 			var signableHash = Crypto.randomBytes(32)
 			smartId.sign(cert, signableHash)
-			
+
 			var req = yield wait(this.mitm, "request")
 			req.method.must.equal("POST")
 			req.headers.host.must.equal("example.com")
@@ -377,7 +377,7 @@ describe("SmartId", function() {
 			req = yield wait(this.mitm, "request")
 			req.res.statusCode = 404
 			respond({code: 404, message: "Not Found"}, req)
-			
+
 			var err
 			try { yield res } catch (ex) { err = ex }
 			err.must.be.an.error(SmartIdError)
