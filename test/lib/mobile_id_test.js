@@ -34,9 +34,9 @@ var MOBILE_ID_ERRORS = [
 describe("MobileId", function() {
 	require("../mitm")()
 
-	describe(".prototype.readCertificate", function() {
+	describe(".prototype.certificate", function() {
 		it("must resolve with a certificate", function*() {
-			var cert = mobileId.readCertificate(PHONE_NUMBER, ID_NUMBER)
+			var cert = mobileId.certificate(PHONE_NUMBER, ID_NUMBER)
 
 			var req = yield wait(this.mitm, "request")
 			req.method.must.equal("POST")
@@ -59,7 +59,7 @@ describe("MobileId", function() {
 		})
 
 		it("must reject with MobileIdError given NOT_FOUND error", function*() {
-			var cert = mobileId.readCertificate(PHONE_NUMBER, ID_NUMBER)
+			var cert = mobileId.certificate(PHONE_NUMBER, ID_NUMBER)
 			var req = yield wait(this.mitm, "request")
 			respond({result: "NOT_FOUND"}, req)
 
@@ -71,7 +71,7 @@ describe("MobileId", function() {
 		})
 
 		it("must reject with MobileIdError given 400 Bad Request", function*() {
-			var cert = mobileId.readCertificate(PHONE_NUMBER, "387061869")
+			var cert = mobileId.certificate(PHONE_NUMBER, "387061869")
 			var req = yield wait(this.mitm, "request")
 			req.res.statusCode = 400
 			respond({error: "nationalIdentityNumber must contain of 11 digits"}, req)
@@ -85,7 +85,7 @@ describe("MobileId", function() {
 		})
 
 		it("must reject with MobileIdError given 401 Unauthorized", function*() {
-			var cert = mobileId.readCertificate(PHONE_NUMBER, "387061869")
+			var cert = mobileId.certificate(PHONE_NUMBER, "387061869")
 			var req = yield wait(this.mitm, "request")
 			req.res.statusCode = 401
 			respond({error: "Failed to authorize user"}, req)

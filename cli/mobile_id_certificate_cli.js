@@ -64,7 +64,7 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 			break
 
 		case "sign":
-			cert = yield mobileId.readCertificate(phoneNumber, personalId)
+			cert = yield mobileId.certificate(phoneNumber, personalId)
 			break
 
 		default: throw new RangeError("Unsupported certiifcate type: " + type)

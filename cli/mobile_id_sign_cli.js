@@ -56,7 +56,7 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 	if (!(tslPath || issuerPath))
 		throw new Error("Pass either --tsl or <issuer-certificate>")
 
-	var cert = yield mobileId.readCertificate(phoneNumber, personalId)
+	var cert = yield mobileId.certificate(phoneNumber, personalId)
 	var tsl = tslPath && Tsl.parse(Fs.readFileSync(tslPath))
 	var issuer = issuerPath && Certificate.parse(Fs.readFileSync(issuerPath))
 	if (issuer == null) issuer = tsl.certificates.getIssuer(cert)
