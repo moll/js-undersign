@@ -30,6 +30,7 @@ Options:
   	--timemark                 Get the Estonian BDOC's timemark with OCSP.
   	--timestamp                Get a timestamp on the signature.
     --timestamp-url=URL        URL for the timestamp server.
+    --type=MIME                Override mime type of file.
 `.trimLeft()
 
 module.exports = _.compose(errorify, co.wrap(function*(argv) {
@@ -63,7 +64,7 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 
 	var xades = new Xades(cert, [{
 		path: path,
-		type: Mime.lookup(path),
+		type: args["--type"] || Mime.lookup(path),
 		hash: yield sha256Stream(Fs.createReadStream(path))
 	}], {policy: args["--timemark"] ? "bdoc" : null})
 
