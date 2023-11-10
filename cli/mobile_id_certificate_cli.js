@@ -14,6 +14,7 @@ Options:
     -h, --help             Display this help and exit.
     -f, --format=FMT       Format to print the certificate in. [default: text]
     -t, --type=TYPE        Whether to get the sign or auth cert. [default: sign]
+    --mobile-id-url=URL    Custom URL for Mobile-Id API.
     --mobile-id-user=NAME  Username (relying party name) for Mobile-Id.
     --mobile-id-password=UUID  Password (relying party UUID) for Mobile-Id.
 
@@ -37,10 +38,12 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 	var personalId = args["<personal-id-number>"]
 	if (phoneNumber == null) return void process.stdout.write(USAGE_TEXT)
 
-	var mobileId = args["--mobile-id-user"] ? new MobileId({
-		user: args["--mobile-id-user"],
-		password:  args["--mobile-id-password"]
-	}) : MobileId.demo
+	var mobileId = args["--mobile-id-user"] || args["--mobile-id-url"]
+		? new MobileId(args["--mobile-id-url"], {
+			user: args["--mobile-id-user"],
+			password:  args["--mobile-id-password"]
+		})
+		: MobileId.demo
 
 	var cert
 	var type = args["--type"]
