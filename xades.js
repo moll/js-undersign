@@ -1,3 +1,4 @@
+var _ = require("./lib/underscore")
 var XadesXml = require("./lib/xades_xml")
 var Crypto = require("./lib/crypto")
 var Certificate = require("./lib/certificate")
@@ -217,7 +218,7 @@ Xades.prototype.obj = null
 Xades.prototype.certificate = null
 Xades.prototype.signableHashAlgorithm = "sha256"
 
-Xades.prototype.__defineGetter__("signable", function() {
+_.defineGetter(Xades.prototype, "signable", function() {
 	return XadesXml.canonicalize(this.obj, [
 		"asic$XAdESSignatures",
 		"ds$Signature",
@@ -225,11 +226,11 @@ Xades.prototype.__defineGetter__("signable", function() {
 	])
 })
 
-Xades.prototype.__defineGetter__("signableHash", function() {
+_.defineGetter(Xades.prototype, "signableHash", function() {
 	return sha256(this.signable)
 })
 
-Xades.prototype.__defineGetter__("signature", function() {
+_.defineGetter(Xades.prototype, "signature", function() {
 	return Buffer.from(
 		this.obj.asic$XAdESSignatures.ds$Signature.ds$SignatureValue.$,
 		"base64"
@@ -243,7 +244,7 @@ Xades.prototype.setSignature = function(signature) {
 
 // The <ds:SignatureVale> element is hashed for time stamping as per XAdES
 // v1.4.1 Specification.
-Xades.prototype.__defineGetter__("signatureElement", function() {
+_.defineGetter(Xades.prototype, "signatureElement", function() {
 	return XadesXml.canonicalize(this.obj, [
 		"asic$XAdESSignatures",
 		"ds$Signature",
