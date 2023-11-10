@@ -69,11 +69,18 @@ Promise.resolve(res).catch(function(err) {
 	if (stack) console.error(stack)
 
 	if (err instanceof FetchError) {
-		if (err.request) console.error("Request Body:", err.request.body)
+		var req = err.request
+		var res = err.response
 
-		if (err.response) {
-			console.error("Response Headers:", err.response.headers)
-			console.error("Response Body:", err.response.body)
+		if (req) {
+			console.warn("%s %s", req.method, req.url)
+			console.warn("Request Headers:", req.headers)
+			if (req.body) console.warn("Request Body:", req.body)
+		}
+
+		if (res) {
+			console.warn("Response Headers:", res.headers)
+			console.warn("Response Body:", res.body)
 		}
 	}
 
