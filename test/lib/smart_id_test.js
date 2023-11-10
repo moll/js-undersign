@@ -2,6 +2,7 @@ var Url = require("url")
 var Crypto = require("crypto")
 var SmartId = require("../../lib/smart_id")
 var SmartIdError = require("../../lib/smart_id").SmartIdError
+var SmartIdSession = require("../../lib/smart_id").SmartIdSession
 var SmartIdCertificate = require("../../lib/smart_id").SmartIdCertificate
 var Certificate = require("../../lib/certificate")
 var newCertificate = require("../fixtures").newCertificate
@@ -393,6 +394,28 @@ describe("SmartId", function() {
 				"78225701eab0c124a4909e28a7e3323f48c9e0de828f690763bcc57ac06de0e1",
 				"hex"
 			)).must.equal(2931)
+		})
+	})
+
+	describe("SmartIdSession", function() {
+		describe(".prototype.toJSON", function() {
+			;["cert", "auth", "sign"].forEach(function(type) {
+				it("must serialize a " + type + " session", function() {
+					new SmartIdSession(type, SESSION_ID).toJSON().must.eql({
+						type: type,
+						id: SESSION_ID
+					})
+				})
+			})
+		})
+
+		describe(".parse", function() {
+			;["cert", "auth", "sign"].forEach(function(type) {
+				it("must parse a " + type + " session back", function() {
+					var session = new SmartIdSession(type, SESSION_ID)
+					SmartIdSession.parse(session.toJSON()).must.eql(session)
+				})
+			})
 		})
 	})
 })
