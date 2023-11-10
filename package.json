@@ -63,7 +63,7 @@
 		"lodash.flowright": "^3",
 		"lodash.indexby": "^3",
 		"asn1.js": "^5",
-		"asn1.js-rfc2560": "^5",
+		"asn1.js-rfc2560": "^5.0.1",
 		"asn1.js-rfc5280": "^3",
 		"bn.js": "^4.11"
 	},
