@@ -1,14 +1,14 @@
 Undersign.js
 ============
 [![NPM version][npm-badge]](https://www.npmjs.com/package/undersign)
-[![Build status][travis-badge]](https://travis-ci.org/moll/js-undersign)
+[![Build status][build-badge]](https://github.com/moll/js-undersign/actions/workflows/node.yaml)
 
 Undersign.js is a **command line utility** and **JavaScript library** for creating **eIDAS** compatible **XAdES digital signatures** and **ASiC-E containers** with the accompanying **[OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol) responses** ([RFC 2560][rfc2560]) and **timestamps** ([RFC 3161][rfc3161]). It's got built-in support for the Estonian Id-card, Mobile-Id, Smart-Id services and their related [BDOC specification](https://www.sk.ee/repository/bdoc-spec21.pdf), but is otherwise useful for generic XAdES signatures. It uses the [Euroopean Trusted List](https://webgate.ec.europa.eu/tl-browser) XML format as the source for certificate authorities.
 
 Note that currently Undersign.js is in a **beta** and **request for comments** phase. Please give it a try and report back on its correctness and API design.
 
 [npm-badge]: https://img.shields.io/npm/v/undersign.svg
-[travis-badge]: https://travis-ci.org/moll/js-undersign.svg?branch=master
+[build-badge]: https://github.com/moll/js-undersign/actions/workflows/node.yaml/badge.svg
 [rfc2560]: https://tools.ietf.org/html/rfc2560
 [rfc3161]: https://tools.ietf.org/html/rfc3161
 [digidoc-client]: https://github.com/open-eid/DigiDoc4-Client
