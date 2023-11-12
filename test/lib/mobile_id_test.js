@@ -178,6 +178,25 @@ describe("MobileId", function() {
 				err.response.must.exist()
 			})
 
+			it("must reject with MobileIdError given 404 Not Found to session",
+				function*() {
+				var session = request()
+				var req = yield wait(this.mitm, "request")
+				respond({sessionID: SESSION_ID}, req)
+
+				var res = mobileId.wait(yield session)
+				req = yield wait(this.mitm, "request")
+				req.res.statusCode = 404
+				respond({error: "Session does not exist"}, req)
+
+				var err
+				try { yield res } catch (ex) { err = ex }
+				err.must.be.an.error(MobileIdError)
+				err.code.must.equal("SESSION_NOT_FOUND")
+				err.message.must.equal("Session does not exist")
+				err.response.must.exist()
+			})
+
 			MOBILE_ID_ERRORS.forEach(function(code) {
 				it(`must reject with MobileIdError given ${code} error to session`,
 					function*() {

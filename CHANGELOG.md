@@ -14,6 +14,9 @@
 
 - Renames `MobileId.confirmation` to `MobileId.verification` to match the name in [SK API documentation][mobile-id-api-verification] and `SmartId.verification`.
 
+- Adds a `MobileIdError` with a code `SESSION_NOT_FOUND` if you `MobileId.prototype.wait` for a session that no longer exists.  
+  Sessions expire on SK's side in 5 minutes.
+
 [mobile-id-api-verification]: https://github.com/SK-EID/MID#24-verification-code
 
 ## 0.1.337 (Nov 10, 2023)
