@@ -12,5 +12,9 @@
 
 - Renames `MobileId.prototype.readCertificate` to `MobileId.prototype.certificate` to match the `SmartId` API.
 
+- Renames `MobileId.confirmation` to `MobileId.verification` to match the name in [SK API documentation][mobile-id-api-verification] and `SmartId.verification`.
+
+[mobile-id-api-verification]: https://github.com/SK-EID/MID#24-verification-code
+
 ## 0.1.337 (Nov 10, 2023)
 - Sans three-headed dogs.

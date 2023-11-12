@@ -319,9 +319,9 @@ describe("MobileId", function() {
 		})
 	})
 
-	describe(".confirmation", function() {
-		it("must calculate confirmation from hash", function() {
-			MobileId.confirmation(Buffer.from(
+	describe(".verification", function() {
+		it("must calculate verification code from hash", function() {
+			MobileId.verification(Buffer.from(
 				"78225701eab0c124a4909e28a7e3323f48c9e0de828f690763bcc57ac06de0e1",
 				"hex"
 			)).must.equal(3937)
