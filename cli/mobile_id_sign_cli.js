@@ -40,7 +40,7 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 	var path = args["<file>"]
 	if (path == null) return void process.stdout.write(USAGE_TEXT)
 
-	var mobileId = args["--mobile-id-user"] || args["--mobile-id-url"]
+	var mobileId = args["--mobile-id-url"] || args["--mobile-id-user"]
 		? new MobileId(args["--mobile-id-url"], {
 			user: args["--mobile-id-user"],
 			password:  args["--mobile-id-password"]

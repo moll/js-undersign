@@ -25,6 +25,7 @@ Options:
   	--tsl=FILE                 Use given Trust Service List.
     --issuer=PATH              Explicit issuer certificate if TSL unavailable.
     --ocsp-url=URL             URL for the OCSP server.
+    --smart-id-url=URL        Custom URL for Smart-Id API.
   	--smart-id-user=NAME       Username (relying party name) for Smart Id.
   	--smart-id-password=UUID   Password (relying party UUID) for Smart Id.
   	--timemark                 Get the Estonian BDOC's timemark with OCSP.
@@ -38,10 +39,12 @@ module.exports = _.compose(errorify, co.wrap(function*(argv) {
 	var path = args["<file>"]
 	if (path == null) return void process.stdout.write(USAGE_TEXT)
 
-	var smartId = args["--smart-id-user"] ? new SmartId({
-		user: args["--smart-id-user"],
-		password:  args["--smart-id-password"]
-	}) : SmartId.demo
+	var smartId = args["--smart-id-url"] || args["--smart-id-user"]
+		? new SmartId(args["--smart-id-url"], {
+			user: args["--smart-id-user"],
+			password:  args["--smart-id-password"]
+		})
+		: SmartId.demo
 
 	var country = args["--country"]
 	var personalId = args["--id"]
