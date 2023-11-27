@@ -89,5 +89,5 @@ function errorify(res) {
 }
 
 function serializeConfirmation(signableHash) {
-	return ("000" + MobileId.confirmation(signableHash)).slice(-4)
+	return ("000" + MobileId.verification(signableHash)).slice(-4)
 }
