@@ -288,6 +288,13 @@ Xades.prototype.setTimestamp = function(stamp) {
 	props = props.xades$UnsignedSignatureProperties
 
 	props.xades$SignatureTimeStamp = {
+		// The DSS validator
+		// (https://ec.europa.eu/digital-building-blocks/DSS/webapp-demo/validation)
+		// fails to validate timestamps if the canonicalization method is unset.
+		// Unsure at the moment what the spec says. It'd make sense if they used
+		// the c14n method listed in the <ds:SignedInfo> element...
+		ds$CanonicalizationMethod: {Algorithm: C14N_URL},
+
 		xades$EncapsulatedTimeStamp: {
 			$: serializeTimestamp(stamp).toString("base64")
 		}

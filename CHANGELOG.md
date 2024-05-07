@@ -17,6 +17,10 @@
 - Adds a `MobileIdError` with a code `SESSION_NOT_FOUND` if you `MobileId.prototype.wait` for a session that no longer exists.  
   Sessions expire on SK's side in 5 minutes.
 
+- Adds a `<ds:CanonicalizationMethod>` (XML canonicalization method) element to `<xades:SignatureTimeStamp>`.  
+  This permits the [DSS validator][dss-validator] to accept timestamps.
+
+[dss-validator]: https://ec.europa.eu/digital-building-blocks/DSS/webapp-demo/validation
 [mobile-id-api-verification]: https://github.com/SK-EID/MID#24-verification-code
 
 ## 0.1.337 (Nov 10, 2023)
