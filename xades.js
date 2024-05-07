@@ -242,7 +242,7 @@ Xades.prototype.setSignature = function(signature) {
 	this.obj.asic$XAdESSignatures.ds$Signature.ds$SignatureValue.$ = basedSig
 }
 
-// The <ds:SignatureVale> element is hashed for time stamping as per XAdES
+// The <ds:SignatureValue> element is hashed for time stamping as per XAdES
 // v1.4.1 Specification.
 _.defineGetter(Xades.prototype, "signatureElement", function() {
 	return XadesXml.canonicalize(this.obj, [
