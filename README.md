@@ -270,6 +270,16 @@ You can run each of the commands in turn with `--help` to see more detailed opti
 $ hades mobile-id-sign --help
 ```
 
+To give it a quick chance, you can also use `npx` or `pnpx` to run `hades` without a prior global install, as follows:
+
+```
+$ npx undersign --help
+```
+or:
+```
+$ pnpx undersign --help
+```
+
 I'll add more elaborate documentation in the future, but for now, here are a few use cases.
 
 ### Get the Certificate of a Mobile-Id User
