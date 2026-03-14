@@ -75,6 +75,6 @@
 		"mitm": ">= 1 < 2",
 		"express": "^4.17",
 		"body-parser": "^1.19",
-		"yauzl": "^2.10"
+		"yauzl": "^3.2"
 	}
 }
