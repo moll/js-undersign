@@ -39,7 +39,7 @@ Creating digital signatures is a multi-step process. Undersign.js comes with a c
 var Hades = require("undersign")
 ```
 
-Create a new instance of `Hades` with certificates from a trust service list you've acquired separately, and a timemark or a timestamp service URL. For more information, see either the section below on [Trusted Lists](#trusted-lists) or for OCSP, timestamp and timemark service URLs, the section on [Trust Services](#trust-services).
+Create a new instance of `Hades` with certificates from a trust service list you've acquired separately, and a timestamp service URL. For more information, see either the section below on [Trusted Lists](#trusted-lists) or for OCSP and timestamp service URLs, the section on [Trust Services](#trust-services).
 
 ```javascript
 var Fs = require("fs")
@@ -47,7 +47,6 @@ var Tsl = require("undersign/lib/tsl")
 
 var hades = new Hades({
   certificates: Tsl.parse(Fs.readFileSync("./tsl/ee.xml")).certificates,
-  timemarkUrl: "…",
   timestampUrl: "…"
 })
 ```
@@ -83,7 +82,7 @@ Once you've got a `Xades` document, you can get the signable XML with `xades.sig
 xades.setSignature(signThroughMagic(xades.signableHash))
 ```
 
-Almost done. For the signature to have legal value in Europe, you'll also need to **check the signer's certificate validity** and **timestamp the signature**. There are two methods to do so — regular timestamping or timemarking.
+Almost done. For the signature to have legal value in Europe, you'll also need to **check the signer's certificate validity** and **timestamp the signature**. Prefer regular timestamping (below). Timemarking remains available in the API for jurisdictions that still support it, but it is **no longer an option in Estonia as of Nov 2023** — see [Timemarking](#timemarking).
 
 #### Timestamping and OCSP
 For a regular timestamp, you've got two operations ahead of you — a certificate validity request ([OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)) and a timestamp request.
@@ -115,32 +114,23 @@ var hades = new Hades({ocspUrl: "…"})
 Unfortunately Estonian citizen certificates issued before 2018 by SK ID Solutions AS's ESTEID-SK 2011 and ESTEID-SK 2015 certificates lack OCSP URLs. Through testing it turned out they're providing a publicly available OCSP server for those at <http://aia.sk.ee/esteid2011> and <http://aia.sk.ee/esteid2015> respectively, but it's unclear how they're intended to be discovered. Some say the public accessibility of the newer ESTEID 2018 certificates' OCSP servers only arose thanks to a new eIDAS requirement. I also heard a rumor about wishes to continue to charge Estonians for our identity certificate OCSP servers while making them publicly accessible to other member states, but since Estonians would've merely routed their requests through other countries, it was fortunately decided to make all publicly available.
 
 #### Timemarking
-Timemarking utilizes the certificate validity ([OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)) request to also get a timestamp for the signature. However, **the OCSP server and its service provider you're using needs to support this explicitly**. It's not evident technically which OCSP servers do and which don't, as the process piggybacks on the regular _nonce_ of the OCSP request and is more a legal property than a technical one. It relies on the OCSP server provider being able to provide timestamping proof later when asked. While the signature should have legal standing regardless, it's useful to set the signature's policy to the [BDOC specification](https://www.sk.ee/repository/bdoc-spec21.pdf). This way other applications (such as the [Estonian Digidoc][digidoc-client]) can identify the use of timemarks and check their validity automatically.
+Timemarking utilizes the certificate validity ([OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)) request to also get a timestamp for the signature. However, **the OCSP server and its service provider you're using needs to support this explicitly**. It's not evident technically which OCSP servers do and which don't, as the process piggybacks on the regular _nonce_ of the OCSP request and is more a legal property than a technical one. It relies on the OCSP server provider being able to provide timestamping proof later when asked.
 
-The Estonian [SK ID Solutions AS](https://www.sk.ee) provides such a timemark-compatible OCSP server at <http://ocsp.sk.ee> for at worst [€0.1 per request](https://www.skidsolutions.eu/teenused/hinnakiri/kehtivuskinnituse-teenus).
+**As of Nov 2023, timemarking is no longer offered in Estonia.** Prefer [regular timestamping](#timestamping-and-ocsp) there. The `timemarkUrl` / `Hades.prototype.timemark` API remains for other jurisdictions where a provider still supports it.
 
-To utilize that, set the `timemarkUrl` when creating an instance of `Hades`:
+If you do use timemarking elsewhere, set `timemarkUrl` when creating an instance of `Hades`, and set the signature policy appropriately for your profile (for historical BDOC/Digidoc compatibility that was `policy: "bdoc"`):
 
 ```javascript
 var hades = new Hades({
   tsl: Tsl.parse(Fs.readFileSync("./tsl/ee.xml")).certificates,
-  timemarkUrl: "http://ocsp.sk.ee"
+  timemarkUrl: "…"
 })
-```
 
-Don't forget setting the policy to `bdoc` when creating a new XAdES signature for timemarking:
-
-```javascript
 var xades = hades.new(certificate, files, {policy: "bdoc"})
-```
-
-Then, instead of a regular OCSP request, use `Hades.prototype.timemark` to get both a OCSP response and a timemark in one call:
-
-```javascript
 xades.setOcspResponse(await hades.timemark(xades))
 ```
 
-The reason you've got to set the signature policy (BDOC in the above example) before signing or timemarking is that the policy reference also gets signed.
+The reason you've got to set the signature policy before signing or timemarking is that the policy reference also gets signed.
 
 #### Signature Export
 With the OCSP and timestamp added, you've got a valid XAdES signature. To get the `<asic:XAdESSignatures>` XML representing the signature, use `Xades.prototype.toString` or pass `xades` to `String`:
@@ -218,9 +208,7 @@ As any timestamp service in the European Trusted List will suffice for eIDAS com
 [SK ID Solutions AS](https://www.sk.ee) also has a timestamping server for testing at <http://demo.sk.ee/tsa> which, being in the Estonian Test Trusted List, can be used during development.
 
 #### Timemarking Services
-Alternatively, you may obtain a timestamp together with the certificate validity (OCSP) response. I currently know of only a single service provider supporting this, the Estonian [SK ID Solutions AS](https://www.sk.ee). They provide <http://ocsp.sk.ee> for at worst [€0.1 per request](https://www.skidsolutions.eu/teenused/hinnakiri/kehtivuskinnituse-teenus). I'm not sure if that OCSP+timestamp service is applicable if you're creating signatures with certificates not originally issued in Estonia or by them. If possible, use a plain timestamp server to timestamp your signatures.
-
-[SK ID Solutions AS](https://www.sk.ee) also has a timarking OCSP server for testing at <http://demo.sk.ee/ocsp> which, being in the Estonian Test Trusted List, can be used during development.
+Alternatively, some providers historically offered a timestamp together with the certificate validity (OCSP) response. **In Estonia this is no longer available as of Nov 2023.** Prefer a plain [timestamp service](#timestamp-services). If you know of a still-active timemark-capable OCSP provider elsewhere, configure it via `timemarkUrl`; Undersign.js keeps the API for that case.
 
 ### Mobile-Id Test Accounts
 To test Mobile-Id signing, use one of the Mobile-Id test phone numbers:
